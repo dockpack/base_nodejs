@@ -1,0 +1,59 @@
+# Install Node.js using packages crafted by NodeSource
+---
+- name: Check nodejs_version variable
+  assert:
+    that: nodejs_version is defined
+  tags:
+    - test
+
+- name: Copy goss tests template
+  template:
+    src: nodejs_goss.yml
+    dest: /root/nodejs_goss.yml
+  tags:
+    - test
+
+- name: Ensure the system can use the HTTPS transport for APT
+  stat:
+    path: /usr/lib/apt/methods/https
+  register: apt_https_transport
+  tags:
+    - test
+
+- name: Install HTTPS transport for APT
+  apt:
+    pkg: apt-transport-https
+    state: installed
+  when: not apt_https_transport.stat.exists and ansible_os_family == 'Debian'
+
+- name: Run Nodesource setup script
+  script: "{{ ansible_os_family }}/setup_{{ node_major }}.x"
+  args:
+    creates: /etc/nodejs.ver
+
+- name: Install Node.js
+  package:
+    name: "nodejs"
+    state: present
+
+- name: Install developer tools
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - gcc-c++
+    - make
+  when: ansible_os_family == "RedHat"
+
+- name: Determine version of node
+  command: node -v
+  changed_when: no
+  register: node_version
+
+- name: Test version of node
+  fail:
+    msg: "Version mismatch"
+  when: not node_version.stdout | search( nodejs_version )
+  changed_when: no
+  tags:
+    - test
