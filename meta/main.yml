@@ -2,7 +2,7 @@
 # Standards: 0.2
 galaxy_info:
   author: Bas Meijer
-  description: Node
+  description: NodeJS
   company: dockpack
 
   license: MIT
