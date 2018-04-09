@@ -400,8 +400,6 @@ You may also need development tools to build native addons:\n\
   \`yum install -y gcc-c++ make\`\
 "
 
-## Alternative to install dev tools: `yum groupinstall 'Development Tools'
-echo {{ nodejs_version }} > /etc/nodejs.ver
 exit 0
 
 }
