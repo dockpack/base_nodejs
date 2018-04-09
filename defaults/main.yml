@@ -2,7 +2,7 @@
 # Pin-Priority of NodeSource repository
 nodejs_nodesource_pin_priority: 500
 
-node_major: "6"
-nodejs_version: "6.13.0"
+node_major: "8"
+nodejs_version: "8.11.0"
 
 nodejs_installer: "https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_{{ node_major }}.x"
