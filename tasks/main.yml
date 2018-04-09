@@ -6,12 +6,60 @@
   tags:
     - test
 
-- name: Copy goss tests template
-  template:
-    src: nodejs_goss.yml
-    dest: /root/nodejs_goss.yml
+- name: Determine presence of node
+  command: which node
+  ignore_errors: yes
+  changed_when: no
+  register: node_present
+
+- name: Run Nodesource setup script
+  when: node_present.rc|int > 1
+  script: "{{ ansible_os_family }}/setup_{{ node_major }}.x"
+
+- name: Fix yum cache issue
+  command: yum clean all
+  changed_when: no
+  when: ansible_os_family == 'RedHat'
+  tags:
+    - skip_ansible_lint
+
+- name: Install Node.js rpm
+  when: node_present.rc != '0' and ansible_os_family == 'RedHat'
+  yum:
+    name: "nodejs"
+    update_cache: yes
+    state: present
+
+- name: Install Node.js package
+  when: node_present.rc != '0' and ansible_os_family != 'RedHat'
+  package:
+    name: "nodejs"
+    state: present
+
+- name: Determine version of node
+  command: node -v
+  changed_when: no
+  ignore_errors: yes
+  register: node_version
+
+- name: Test version of node
+  debug:
+    msg: "NodeJS major version mismatch"
+  when: not node_version.stdout | search( node_major )
   tags:
     - test
+
+- name: Uninstall Node.js
+  when: not node_version.stdout | search( node_major )
+  package:
+    name: "nodejs"
+    state: absent
+
+- name: Uninstall nodesource-release
+  when: not node_version.stdout | search( node_major )
+  package:
+    name: "nodesource-release"
+    state: absent
 
 - name: Ensure the system can use the HTTPS transport for APT
   stat:
@@ -27,11 +75,18 @@
   when: not apt_https_transport.stat.exists and ansible_os_family == 'Debian'
 
 - name: Run Nodesource setup script
+  when: not node_version.stdout | search( node_major )
   script: "{{ ansible_os_family }}/setup_{{ node_major }}.x"
-  args:
-    creates: /etc/nodejs.ver
 
-- name: Install Node.js
+- name: Install Node.js rpm
+  when:  ansible_os_family == 'RedHat'
+  yum:
+    name: "nodejs"
+    update_cache: yes
+    state: present
+
+- name: Install Node.js package
+  when:  ansible_os_family != 'RedHat'
   package:
     name: "nodejs"
     state: present
@@ -45,15 +100,10 @@
     - make
   when: ansible_os_family == "RedHat"
 
-- name: Determine version of node
-  command: node -v
-  changed_when: no
-  register: node_version
-
-- name: Test version of node
-  fail:
-    msg: "Version mismatch"
-  when: not node_version.stdout | search( nodejs_version )
-  changed_when: no
+- name: Copy goss tests template
+  template:
+    src: nodejs_goss.yml
+    dest: /root/nodejs_goss.yml
   tags:
     - test
+
