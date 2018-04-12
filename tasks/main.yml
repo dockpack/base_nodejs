@@ -13,7 +13,7 @@
   register: node_present
 
 - name: Run Nodesource setup script
-  when: node_present.rc|int > 1
+  when: node_present.rc|int != 0
   script: "{{ ansible_os_family }}/setup_{{ node_major }}.x"
 
 - name: Fix yum cache issue
@@ -79,14 +79,14 @@
   script: "{{ ansible_os_family }}/setup_{{ node_major }}.x"
 
 - name: Install Node.js rpm
-  when:  ansible_os_family == 'RedHat'
+  when: ansible_os_family == 'RedHat'
   yum:
     name: "nodejs"
     update_cache: yes
     state: present
 
 - name: Install Node.js package
-  when:  ansible_os_family != 'RedHat'
+  when: ansible_os_family != 'RedHat'
   package:
     name: "nodejs"
     state: present
@@ -106,4 +106,3 @@
     dest: /root/nodejs_goss.yml
   tags:
     - test
-
