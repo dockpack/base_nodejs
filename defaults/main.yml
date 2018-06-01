@@ -6,3 +6,10 @@ node_major: "8"
 nodejs_version: "8.11.0"
 
 nodejs_installer: "https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_{{ node_major }}.x"
+
+base_npm_packages:
+  - npm
+  - gulp
+  - grunt
+  - grunt-cli
+  - bower
