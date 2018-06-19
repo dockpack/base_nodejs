@@ -15,6 +15,8 @@
 - name: Run Nodesource setup script
   when: node_present.rc|int != 0
   script: "{{ ansible_os_family }}/setup_{{ node_major }}.x"
+  args:
+    creates: /usr/bin/node
 
 - name: Fix yum cache issue
   command: yum clean all
@@ -114,3 +116,4 @@
     global: yes
     production: yes
   with_items: "{{ base_npm_packages }}"
+  changed_when: no #  npm: is not idempotent in ansible <2.4
