@@ -1,4 +1,5 @@
-![Build Status](https://api.travis-ci.org/dockpack/base_nodejs.svg)
+[![Galaxy](https://img.shields.io/badge/galaxy-dockpack.base__nodejs-blue.svg?style=flat)](https://galaxy.ansible.com/dockpack/base_nodejs)[![Build Status](https://api.travis-ci.org/dockpack/base_nodejs.svg)](https://travis-ci.org/dockpack/base_nodejs)
+
 
 base_nodejs
 =========
