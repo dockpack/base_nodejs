@@ -97,11 +97,10 @@
 
 - name: Install developer tools
   yum:
-    name: "{{ item }}"
+    name:
+      - gcc-c++
+      - make
     state: present
-  with_items:
-    - gcc-c++
-    - make
   when: ansible_os_family == "RedHat"
 
 - name: Copy goss tests template
