@@ -11,5 +11,4 @@ base_npm_packages:
   - npm
   - gulp
   - grunt
-  - grunt-cli
   - bower
