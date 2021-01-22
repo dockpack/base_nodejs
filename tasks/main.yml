@@ -8,8 +8,8 @@
 
 - name: Determine presence of node
   command: which -s node
-  ignore_errors: yes
-  changed_when: no
+  ignore_errors: true
+  changed_when: false
   register: node_present
 
 - name: Run Nodesource setup script
@@ -21,8 +21,8 @@
 - name: Fix yum cache issue
   command: yum clean all
   args:
-    warn: no
-  changed_when: no
+    warn: false
+  changed_when: false
   when: ansible_os_family == 'RedHat'
   tags:
     - skip_ansible_lint
@@ -31,7 +31,7 @@
   when: node_present.rc != '0' and ansible_os_family == 'RedHat'
   yum:
     name: "nodejs"
-    update_cache: yes
+    update_cache: true
     state: present
 
 - name: Install Node.js package
@@ -42,9 +42,10 @@
 
 - name: Determine version of node
   command: node -v
-  changed_when: no
-  ignore_errors: yes
+  changed_when: false
+  ignore_errors: true
   register: node_version
+  failed_when: node_version.rc|int not in [0,2]
 
 - name: Test version of node
   debug:
@@ -86,7 +87,7 @@
   when: ansible_os_family == 'RedHat'
   yum:
     name: "nodejs"
-    update_cache: yes
+    update_cache: true
     state: present
 
 - name: Install Node.js package
@@ -107,6 +108,7 @@
   template:
     src: nodejs_goss.yml
     dest: /root/nodejs_goss.yml
+    mode: 0640
   tags:
     - test
 
@@ -114,7 +116,7 @@
   npm:
     name: "{{ item }}"
     state: present
-    global: yes
-    production: yes
+    global: true
+    production: true
   with_items: "{{ base_npm_packages }}"
-  changed_when: no  # npm: is not idempotent in ansible <2.4
+  changed_when: false  # npm: is not idempotent in ansible <2.4
